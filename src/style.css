@@ -1,0 +1,99 @@
+/*!LOTUS*/
+.row {
+  /* margin-left: -1.25em; */
+}
+.col,
+.col-sm,
+.col-lg {
+  background-clip: content-box;
+  box-sizing: border-box;
+  display: inline-block;
+  margin-right: -0.25em;
+  min-height: 1px;
+  padding-left: 1.25em;
+  position: relative;
+  vertical-align: top;
+}
+.no-gutter {
+  padding-left: 0.25em;
+}
+.c12 {
+  width: 100%;
+}
+.c11 {
+  width: 91.66%;
+}
+.c10 {
+  width: 83.33%;
+}
+.c9 {
+  width: 75%;
+}
+.c8 {
+  width: 66.66%;
+}
+.c7 {
+  width: 58.33%;
+}
+.c6 {
+  width: 50%;
+}
+.c5 {
+  width: 41.66%;
+}
+.c4 {
+  width: 33.33%;
+}
+.c3 {
+  width: 25%;
+}
+.c2 {
+  width: 16.66%;
+}
+.c1 {
+  width: 8.33%;
+}
+
+.btn {
+  background-color: #a8b2bd;
+  border: 0;
+  border-radius: 0.25em;
+  cursor: pointer;
+  display: inline-block;
+  padding: 0.5em 1.5em;
+  outline: 0;
+  text-align: center;
+}
+.btn-sm {
+  padding: 0.25em 0.75em;
+}
+.btn-lg {
+  padding: 1em 3em;
+}
+
+.mt-2 {
+  margin-top: 4px;
+}
+
+main {
+  max-width: 380px;
+  min-width: 380px;
+  text-align: center;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+body {
+  user-select: none;
+  max-width: 420px;
+  min-width: 420px;
+  min-height: 350px;
+  max-height: 350px;
+  margin: 0 auto;
+  overflow-x: visible;
+  overflow-y: auto;
+}
+
+.center{
+  text-align: center;
+}
