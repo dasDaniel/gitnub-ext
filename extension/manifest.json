@@ -1,6 +1,6 @@
 {
   "name": "GitNub",
-  "version": "1.0",
+  "version": "0.0.1",
   "description": "Git helper Chrome extension",
   "manifest_version": 2,
   "browser_action": {
@@ -16,9 +16,6 @@
       "js": ["content.js"]
     }
   ],
-  "permissions": [
-    "https://github.com/*",
-    "http://github.com/*",
-    "storage"
-  ]
+  "permissions": ["https://github.com/*", "http://github.com/*", "storage"],
+  "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" }
 }

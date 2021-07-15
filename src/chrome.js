@@ -1,21 +1,25 @@
 const storeKey = "gitnub";
 
-export const getLocalStore = (callback) => {
+export const getLocalStore = async () => {
   console.log(" GET 🤷‍♂️ ");
-  try {
-    chrome.storage.local.get(storeKey, (storage) => {
-      if (storeKey in storage) {
-      }
-      console.log("🤷‍♂️ GET [chrome]", JSON.stringify(storage));
-      callback(storage[storeKey]);
-    });
-  } catch (error) {
-    console.warn(error);
-    // fallback for local dev
-    let result = window.localStorage.getItem(storeKey);
-    callback(JSON.parse(result));
-  }
+  return new Promise((resolve, reject) => {
+    try {
+      chrome.storage.local.get(storeKey, (storage) => {
+        console.log("🤷‍♂️ GET [chrome]", JSON.stringify(storage));
+        if (storeKey in storage) {
+          resolve(storage[storeKey]);
+        }
+        reject(Error("store key not found"));
+      });
+    } catch (error) {
+      console.warn(error);
+      // fallback for local dev
+      let result = window.localStorage.getItem(storeKey);
+      resolve(JSON.parse(result));
+    }
+  });
 };
+
 export const setLocalStore = (data) => {
   console.log("write ", JSON.stringify(data));
   try {
