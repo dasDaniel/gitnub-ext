@@ -1,37 +1,54 @@
-{#if $appState.detail}
-  <div class="row center mt-4">
+<div class="row mt-2 py-4 {addingStage?'disabled':''}">
+  <div class="col no-gutter c4 text-left">
+    <button
+      class="btn danger"
+      disabled={detail.isDefault}
+      on:click={removeActiveRepo}>DELETE</button
+    >
+  </div>
+  <div class="col no-gutter c4">
+    <button class="btn success {unsavedChanges?'badge':''} badge-success" on:click={save}>SAVE</button>
+  </div>
+  <div class="col no-gutter c4 text-right">
+    <button class="btn" on:click={resetAppState}>CANCEL</button>
+  </div>
+</div>
+{#if detail}
+
+  <div class="row center mt-4 {addingStage?'disabled':''}">
     <div class="col no-gutter c10">
       <label for="name"
-        >NAME: {#if $appState.detail?._isDefault}
-          <input type="text" id="name" bind:value={$appState.detail._name} disabled />
+        >NAME: {#if detail?._isDefault}
+          <input type="text" id="name" bind:value={detail.name} disabled />
         {:else}
-          <input type="text" id="name" bind:value={$appState.detail._name} />
+          <input type="text" id="name" bind:value={detail.name} />
         {/if}
       </label>
     </div>
     <div class="col no-gutter c2">
       <label class="label-inline" for="isActive">Enabled</label>
-      <input type="checkbox" id="isActive" bind:checked={$appState.detail._isActive} />
+      <input type="checkbox" id="isActive" bind:checked={detail.isActive} />
     </div>
   </div>
-  <div class="row center mt-4">
+  <div class="row center mt-4 {addingStage?'disabled':''}">
     <div class="col no-gutter c10">
       <label for="repo"
         >URL (regex)
-        <input type="text" id="repo" bind:value={$appState.detail._repo} />
+        <input type="text" id="repo" bind:value={detail.repo} />
       </label>
     </div>
     <div class="col no-gutter c2"></div>
   </div>
-
-  <div class="row mt-4 ">
+  
+  <div class="row mt-4 {addingStage?'disabled':''}">
     <div class="col no-gutter c4">TO</div>
     <div class="col no-gutter c4">FROM</div>
     <div class="col no-gutter c3">TYPE</div>
     <div class="col no-gutter c1" />
   </div>
-  {#each $appState.detail?._stages as { to, from, type }, i}
-    <div class="row mt-2">
+
+  {#each detail.stages as { to, from, type }, i}
+    <div class="row mt-2 {addingStage?'disabled':''}">
       <div class="col no-gutter c4">
         <input type="text" bind:value={to} />
       </div>
@@ -52,130 +69,132 @@
       </div>
     </div>
   {/each}
-
-  <!-- ADD -->
-  <div class="row mt-2 py-4">
-    <div class="col no-gutter c4">
-      <input class="muted" type="text" bind:value={$appState.detail._newTo} />
+  {#if detail.tempStage}
+    <div class="row mt-2 py-4">
+      <div class="col no-gutter c4">
+        <input class="muted" type="text" bind:value={detail.tempStage.to} />
+      </div>
+      <div class="col no-gutter c4">
+        <input class="muted" type="text" bind:value={detail.tempStage.from} />
+      </div>
+      <div class="col no-gutter c3">
+        <select class="muted" bind:value={detail.tempStage.type}>
+          <option />
+          {#each Object.values(MERGE_TYPES) as mergetype}
+            <option value={mergetype}>{mergetype}</option>
+          {/each}
+        </select>
+      </div>
+      <div class="col no-gutter c1"></div>
     </div>
-    <div class="col no-gutter c4">
-      <input class="muted" type="text" bind:value={$appState.detail._newFrom} />
-    </div>
-    <div class="col no-gutter c3">
-      <select class="muted" bind:value={$appState.detail._newType}>
-        <option />
-        {#each Object.values(MERGE_TYPES) as mergetype}
-          <option value={mergetype}>{mergetype}</option>
-        {/each}
-      </select>
-    </div>
-    <div class="col no-gutter c1">
-      <button on:click={add} disabled={!addEnabled} class="btn btn-action add"
-        >+</button
+    <div class="row mt-2 py-4">
+      <button on:click={saveNewStage} disabled={!addEnabled} class="btn btn-sm success"
+        >ADD STAGE</button
+      >
+      <button on:click={clearNewStage} class="btn btn-sm"
+        >CANCEL</button
       >
     </div>
-  </div>
-  <div class="row mt-2 py-4">
+  {:else}
+  <div class="row mt-4 py-4">
     <div class="col no-gutter c4">
-      <button
-        class="btn danger"
-        disabled={$appState.detail._isDefault}
-        on:click={() => removeRepo($index)}>DELETE</button
-      >
-    </div>
-    <div class="col no-gutter c4">
-      <button class="btn success" on:click={save}>SAVE</button>
-    </div>
-    <div class="col no-gutter c4">
-      <button class="btn" on:click={() => selectRepo(null)}>CANCEL</button>
+    <button class="btn btn-sm primary" on:click={addStage}>ADD STAGE</button>
     </div>
   </div>
-{/if}
+  {/if}
 
-{#if $unsavedChanges}
-<div class="row center mt-2 warn">
-  You have unsaved changes
-</div>
 {/if}
-
+<pre style="text-align:left">{JSON.stringify(detail, null, 2)}</pre>
 <script>
   import { derived } from "svelte/store";
   import {
-    repos,
-    index,
-    selectRepo,
-    removeRepo,
+    getActiveRepo,
+    resetAppState,
+    removeActiveRepo,
     MERGE_TYPES,
     appState,
+    selectRepo,
+    updateActiveRepo,
   } from "./store.js";
 
-
-  if($appState?.detail) {
-    $appState = {
-      index: $index,
-      detail: {...$appState?.detail}
-    };
-  } else {
-    $appState = {
-      index: $index,
-      detail: {
-        _repo : $repos[$index].repo,
-        _isActive : $repos[$index].isActive,
-        _isDefault : $repos[$index].isDefault,
-        _name : $repos[$index].name,
-        _stages : Array.isArray($repos[$index].stages)
-        ? JSON.parse(JSON.stringify($repos[$index].stages))
-        : [],
-        _newTo : "",
-        _newFrom : "",
-        _newType : "",
-      }
-    };
+  let detail = {}
+  let activeRepo = getActiveRepo();
+  
+  // copy from repos object
+  if (activeRepo) {
+    detail.repo = activeRepo.repo || "";
+    detail.isActive = activeRepo.isActive || "";
+    detail.isDefault = activeRepo.isDefault || "";
+    detail.name = activeRepo.name || "";
+    // deep copy
+    detail.stages = JSON.parse(JSON.stringify(activeRepo.stages || []));
+    // add initial values for non-repo variables
+    detail.tempStage = null;
   }
-    
-  let unsavedChanges = derived(appState, () => {
-    if (!$appState.detail) return true;
-    if ($appState.detail._newTo !== "") return true;
-    if ($appState.detail._newType !== "") return true;
-    if ($appState.detail._newFrom !== "") return true;
-    if ($appState?.detail._isActive !== $repos[$index]?.isActive) return true;
-    if ($appState?.detail._isDefault !== $repos[$index]?.isDefault) return true;
-    if ($appState?.detail._name !== $repos[$index]?.name) return true;
-    if (JSON.stringify($appState?.detail?._stages) !== JSON.stringify($repos[$index]?.stages)) return true;
 
-    return false;
-  });
+  // override with app state if details object exists
+  if ($appState.detail) {
+    detail.repo = $appState.detail.repo || "";
+    detail.isActive = $appState.detail.isActive || "";
+    detail.isDefault = $appState.detail.isDefault || "";
+    detail.name = $appState.detail.name || "";
+    detail.stages = $appState.detail.stages || [];
+    detail.tempStage = $appState.detail.tempStage || null;
+  }
 
-  $: addEnabled = $appState?.detail && $appState?.detail._newTo !== "" && $appState?.detail._newFrom !== "" && $appState?.detail._newType !== "";
+  function checkUnsavedChanges() {
+    let r = activeRepo
+    if (detail.tempStage !== null) return true;
+    if (detail.repo !== r.repo) return true;
+    if (detail.isActive !== r.isActive) return true;
+    if (detail.name !== r.name) return true;
+    // deep-check ~ nested values should be in same order
+    if (JSON.stringify(detail.stages) !== JSON.stringify(r.stages || [])) return true;
+    return false
+  }
 
-  const add = () => {
-    $appState.detail._stages = [
-      ...$appState?.detail?._stages,
+  function addStage(){
+    detail.tempStage = {
+      to:"",
+      from:"",
+      type:"",
+    }
+  }
+
+  function saveNewStage () {
+    detail.stages = [
+      ...detail.stages,
       {
-        to: $appState?.detail?._newTo,
-        from: $appState?.detail?._newFrom,
-        type: $appState?.detail?._newType,
+        ...detail.tempStage
       },
     ];
-    $appState.detail._newTo = "";
-    $appState.detail._newFrom = "";
-    $appState.detail._newType = "";
+    detail.tempStage = null;
   };
 
-  const remove = (index) => {
-    $appState.detail._stages = $appState?.detail._stages.filter((stage, i) => i !== index);
+  function clearNewStage(){
+    detail.tempStage = null;
+  }
+
+  let unsavedChanges = checkUnsavedChanges()
+
+  $: {
+    // register detail for reactivity and update appStore
+    $appState.detail = detail;
+    unsavedChanges = checkUnsavedChanges();
   };
+
+  $: addEnabled = detail.tempStage && detail.tempStage.to !== "" && detail.tempStage.from !== "" && detail.tempStage.type !== "";
+  $: addingStage = !!detail.tempStage;
 
   const save = () => {
-    console.log($appState)
-    $repos[$index] = {
-      ...$repos[$index],
-      repo: $appState?.detail?._repo,
-      isActive: $appState?.detail?._isActive,
-      isDefault: $appState?.detail?._isDefault,
-      name: $appState?.detail?._name,
-      stages: $appState?.detail?._stages,
-    };
+    updateActiveRepo({
+      ...activeRepo,
+      repo: detail.repo,
+      isActive: detail.isActive,
+      isDefault: detail.isDefault,
+      name: detail.name,
+      stages: detail.stages,
+    });
     selectRepo(null);
   };
 </script>
@@ -187,21 +206,9 @@
     color: grey;
   }
 
-  /* .row {
-    margin-top: 8px;
-    margin-bottom: 8px;
-    width: 100%;
-  } */
 
-  button {
-    padding: 4px 8px;
-  }
-
-  button.success {
-    background-color: greenyellow;
-  }
-  button.danger {
-    background-color: tomato;
+  button[disabled] {
+    opacity:0.6;
   }
 
   input[type="text"],
@@ -213,7 +220,8 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    padding: 0em 0 0 0em;
+    padding: 0 0 0 0;
+    line-height: 12px;
     font-weight: 900;
     color: white;
     box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.3);
@@ -225,16 +233,14 @@
     cursor: default;
   }
   .btn-action.remove {
-    background-color: tomato;
+    background-color: var(--col-fail-1);
+    /* background-image: linear-gradient(var(--col-fail-2), var(--col-fail-3)); */
+    color: var(--col-fail-3);
+    border-color: var(--col-fail-2);
   }
   .btn-action.remove:hover {
-    background-color: rgb(201, 64, 40);
-  }
-  .btn-action.add {
-    background-color: rgb(121, 185, 24);
-  }
-  .btn-action.add:hover {
-    background-color: rgb(88, 139, 12);
+    background-color: var(--col-fail-2);
+    color: var(--col-fail-3);
   }
 
   input,
@@ -250,21 +256,8 @@
     border-left: none;
     border-right: none;
   }
-  .muted {
-    border-color: #999;
-    color: #999;
-  }
-  input.muted:focus-visible {
-    border-color: #999;
-    color: #999;
-    outline-color: #999;
-  }
-  .warn {
-    margin-top:20px;
-    padding: 4px;
-    border-radius: 2px;
-    background-color: #dce3eb;
-    color: #66717c;
-    opacity: 0.9;
+  .disabled, .disabled * {
+    opacity: 0.7;
+    pointer-events: none;
   }
 </style>

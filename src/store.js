@@ -9,9 +9,10 @@ export const MERGE_TYPES = {
   REBASE: "rebase",
 };
 
+// extension data
 export const repos = writable([]);
+// popup app state
 export const appState = writable({});
-export const index = writable(null);
 export const loaded = writable(false);
 
 getLocalStore().then((data) => {
@@ -29,7 +30,6 @@ getLocalStore().then((data) => {
         console.log(data.appState);
         if (data.appState.index !== undefined) {
           appState.set(data.appState);
-          index.set(data.appState.index);
         }
       }
     }
@@ -37,14 +37,13 @@ getLocalStore().then((data) => {
     // new
     repos.set([
       {
-        // isDefault: true,
         name: "DEFAULT",
         isActive: true,
         repo: ".*",
         stages: [
           {
-            from: "develop",
-            to: "main",
+            from: "$develop",
+            to: "$main",
             type: MERGE_TYPES.MERGE,
           },
         ],
@@ -53,7 +52,6 @@ getLocalStore().then((data) => {
   }
 
   repos.subscribe(() => get(loaded) && updateStore());
-  index.subscribe(() => get(loaded) && updateStore());
   appState.subscribe(() => get(loaded) && updateStore());
   loaded.set(true);
 });
@@ -64,23 +62,49 @@ export const addRepo = (setting) => {
       name: "NEW",
     };
   }
-
-  repos.update((val) => [...val, setting]);
+  repos.update((val)=>[...val, setting]);
+  return get(repos).length - 1;
 };
 
 export const selectRepo = (value) => {
+  console.log("selectRepo", value);
   if (value !== null && value >= 0 && value < get(repos).length) {
-    index.set(value);
+    appState.set({ index: value });
   } else {
-    index.set(null);
-    appState.set({});
+    resetAppState();
   }
 };
 
 export const removeRepo = (repoIndex) => {
-  index.set(null);
+  appState.set({});
   repos.update((val) => [...val.filter((r, i) => i !== repoIndex)]);
 };
+
+export const removeActiveRepo = () => {
+  let index = get(appState).index;
+  removeRepo(index);
+};
+
+export const getActiveRepo = () => {
+  let index = get(appState).index;
+  return get(repos)[index];
+};
+
+export const resetAppState = () => {
+  appState.set({});
+};
+
+export function updateActiveRepo(data) {
+  let index = get(appState).index;
+  if(index >= 0) {
+    repos.update((val)=>{
+      return val.map((r,i)=>{
+        if (i === index) return data
+        return r
+      })
+    });
+  }
+}
 
 function updateStore() {
   setLocalStore({
