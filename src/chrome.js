@@ -1,4 +1,4 @@
-const storeKey = "gitnub";
+const storeKey = "gitnub1";
 
 export const getLocalStore = async () => {
   console.log(" GET 🤷‍♂️ ");
@@ -9,7 +9,9 @@ export const getLocalStore = async () => {
         if (storeKey in storage) {
           resolve(storage[storeKey]);
         }
-        reject(Error("store key not found"));
+        storage[storeKey] = {};
+        chrome.storage.local.set(storage);
+        resolve(storage);
       });
     } catch (error) {
       console.warn(error);
@@ -32,7 +34,6 @@ export const setLocalStore = (data) => {
           storage[storeKey][key] = data[key];
         }
       }
-      console.log("🤷‍♂️ SET ", storage);
       chrome.storage.local.set(storage);
     });
   } catch (error) {

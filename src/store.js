@@ -16,7 +16,6 @@ export const appState = writable({});
 export const loaded = writable(false);
 
 getLocalStore().then((data) => {
-  console.log({ data });
   if (data && data.repos && data.repos[0] && data.repos[0].name !== undefined) {
     // use stored data
     repos.set([...data.repos]);
@@ -62,7 +61,7 @@ export const addRepo = (setting) => {
       name: "NEW",
     };
   }
-  repos.update((val)=>[...val, setting]);
+  repos.update((val) => [...val, setting]);
   return get(repos).length - 1;
 };
 
@@ -96,12 +95,12 @@ export const resetAppState = () => {
 
 export function updateActiveRepo(data) {
   let index = get(appState).index;
-  if(index >= 0) {
-    repos.update((val)=>{
-      return val.map((r,i)=>{
-        if (i === index) return data
-        return r
-      })
+  if (index >= 0) {
+    repos.update((val) => {
+      return val.map((r, i) => {
+        if (i === index) return data;
+        return r;
+      });
     });
   }
 }

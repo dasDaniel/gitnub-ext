@@ -2,7 +2,7 @@
 <div class="repos mt-4">
   {#each $repos as { name, isActive }, i}
     <div class="center row {isActive ? 'active' : 'inactive'}">
-      <div class="col c8 text-left">
+      <div class="col c8 pt-2 text-left">
       {name}
       </div>
       <div class="col c4 pr-4 text-right">
