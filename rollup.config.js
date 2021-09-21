@@ -6,7 +6,7 @@ import css from "rollup-plugin-css-only";
 import sveltePreprocess from "svelte-preprocess";
 
 const production = !process.env.ROLLUP_WATCH;
-process.env.TAILWIND_MODE = production ? 'jit' : undefined;
+process.env.TAILWIND_MODE = production ? "jit" : undefined;
 
 export default {
   input: "src/main.js",
