@@ -102,9 +102,7 @@
     </div>
   </div>
   {/if}
-
 {/if}
-<pre style="text-align:left">{JSON.stringify(detail, null, 2)}</pre>
 <script>
   import { derived } from "svelte/store";
   import {
