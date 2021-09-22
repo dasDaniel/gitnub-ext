@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build:s": "rollup -c",
-    "build": "rimraf && rollup -c && cpx extension/**/*.* dist",
+    "build": "rimraf /dist && rollup -c && cpx extension/**/*.* dist",
     "dev": "rollup -c -w",
     "start": "http-server -c-1 -d -p 5000 dist"
   },
