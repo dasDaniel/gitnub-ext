@@ -1,109 +1,139 @@
-<div class="row mt-2 py-4 {addingStage?'disabled':''}">
-  <div class="col no-gutter c4 text-left">
-    <button
-      class="btn danger"
-      disabled={detail.isDefault}
-      on:click={removeActiveRepo}>DELETE</button
-    >
-  </div>
-  <div class="col no-gutter c4">
-    <button class="btn success {unsavedChanges?'badge':''} badge-success" on:click={save}>SAVE</button>
-  </div>
-  <div class="col no-gutter c4 text-right">
-    <button class="btn" on:click={resetAppState}>CANCEL</button>
-  </div>
+<div class="flex justify-between mt-2 py-4 {addingStage ? 'disabled' : ''}">
+  <Btn danger disabled={detail.isDefault} on:click={removeActiveRepo}
+    >DELETE</Btn
+  >
+
+  <WithBadge show={unsavedChanges}>
+    <Btn success on:click={save}>SAVE</Btn>
+  </WithBadge>
+
+  <Btn on:click={resetAppState}>CANCEL</Btn>
 </div>
+
 {#if detail}
-
-  <div class="row center mt-4 {addingStage?'disabled':''}">
-    <div class="col no-gutter c10">
-      <label for="name"
-        >NAME: {#if detail?._isDefault}
-          <input type="text" id="name" bind:value={detail.name} disabled />
-        {:else}
-          <input type="text" id="name" bind:value={detail.name} />
-        {/if}
+  <div class="{addingStage ? 'disabled' : ''} pb-4 mb-4">
+    <div class="grid grid-cols-3 gap-2 items-start">
+      <!-- NAME -->
+      <label for="name" class="text-sm font-medium text-gray-700 mt-px pt-2"
+        >NAME:
       </label>
+      {#if detail?._isDefault}
+        <Input
+          class="mt-0 col-span-2"
+          type="text"
+          id="name"
+          bind:value={detail.name}
+          disabled
+        />
+      {:else}
+        <Input
+          class="mt-0 col-span-2"
+          type="text"
+          id="name"
+          bind:value={detail.name}
+        />
+      {/if}
+
+      <!-- ENABLED -->
+      <label class="text-sm font-medium text-gray-700 mt-px pt-2" for="isActive"
+        >ENABLED:</label
+      >
+      <div class="col-span-2 mt-2">
+        <input
+          class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          type="checkbox"
+          id="isActive"
+          bind:checked={detail.isActive}
+        />
+      </div>
+
+      <!-- URL -->
+      <label class="text-sm font-medium text-gray-700 mt-px pt-2" for="repo"
+        >URL (regex):</label
+      >
+      <Input
+        class="mt-0 col-span-2"
+        type="text"
+        id="repo"
+        bind:value={detail.repo}
+      />
     </div>
-    <div class="col no-gutter c2">
-      <label class="label-inline" for="isActive">Enabled</label>
-      <input type="checkbox" id="isActive" bind:checked={detail.isActive} />
-    </div>
-  </div>
-  <div class="row center mt-4 {addingStage?'disabled':''}">
-    <div class="col no-gutter c10">
-      <label for="repo"
-        >URL (regex)
-        <input type="text" id="repo" bind:value={detail.repo} />
-      </label>
-    </div>
-    <div class="col no-gutter c2"></div>
-  </div>
-  
-  <div class="row mt-4 {addingStage?'disabled':''}">
-    <div class="col no-gutter c4">TO</div>
-    <div class="col no-gutter c4">FROM</div>
-    <div class="col no-gutter c3">TYPE</div>
-    <div class="col no-gutter c1" />
   </div>
 
-  {#each detail.stages as { to, from, type }, i}
-    <div class="row mt-2 {addingStage?'disabled':''}">
-      <div class="col no-gutter c4">
-        <input type="text" bind:value={to} />
+  <h2
+    class="text-md font-normal leading-normal mt-8 mb-2 {addingStage
+      ? 'disabled'
+      : ''}"
+  >
+    Stages
+  </h2>
+
+  <div
+    class="grid grid-cols-10 gap-2 mt-2 pt-2 border-t border-gray-300 {addingStage
+      ? 'disabled'
+      : ''}"
+  >
+    <!-- HEAD -->
+    <div class="col-span-3 text-center text-sm">To:</div>
+    <div class="col-span-3 text-center text-sm">From:</div>
+    <div class="col-span-3 text-center text-sm">Type:</div>
+    <div />
+
+    <!-- STAGES -->
+    {#each detail.stages as { to, from, type }, i}
+      <!-- <div class="row mt-2 {addingStage?'disabled':''}"> -->
+      <Input class="col-span-3 col-start-1" type="text" bind:value={to} />
+      <Input class="col-span-3" type="text" bind:value={from} />
+      <Select class="col-span-3" bind:value={type}>
+        {#each Object.values(MERGE_TYPES) as mergetype}
+          <option value={mergetype}>{mergetype}</option>
+        {/each}
+      </Select>
+      <button class="btn btn-action remove" on:click={() => removeStage(i)}
+        >&times;</button
+      >
+    {/each}
+
+    <!-- ADD STAGE BTN -->
+    {#if !detail.tempStage}
+      <div class="col-span-full flex justify-center">
+        <Btn on:click={addStage}>ADD STAGE</Btn>
       </div>
-      <div class="col no-gutter c4">
-        <input type="text" bind:value={from} />
-      </div>
-      <div class="col no-gutter c3">
-        <select bind:value={type}>
-          {#each Object.values(MERGE_TYPES) as mergetype}
-            <option value={mergetype}>{mergetype}</option>
-          {/each}
-        </select>
-      </div>
-      <div class="col no-gutter c1">
-        <button class="btn btn-action remove" on:click={() => remove(i)}
-          >&times;</button
-        >
-      </div>
-    </div>
-  {/each}
+    {/if}
+  </div>
+
   {#if detail.tempStage}
-    <div class="row mt-2 py-4">
-      <div class="col no-gutter c4">
-        <input class="muted" type="text" bind:value={detail.tempStage.to} />
+    <div class="grid grid-cols-10 gap-2 mt-2 pt-2 border-t border-gray-300 ">
+      <Input class="col-span-3" type="text" bind:value={detail.tempStage.to} />
+      <Input
+        class="col-span-3"
+        type="text"
+        bind:value={detail.tempStage.from}
+      />
+      <Select class="col-span-3" bind:value={detail.tempStage.type}>
+        <option />
+        {#each Object.values(MERGE_TYPES) as mergetype}
+          <option value={mergetype}>{mergetype}</option>
+        {/each}
+      </Select>
+      <div class="col-span-9 flex justify-around">
+        <Btn
+          success
+          on:click={saveNewStage}
+          disabled={!addEnabled}
+          class="btn btn-sm success">ADD STAGE</Btn
+        >
+        <Btn on:click={clearNewStage} class="btn btn-sm">CANCEL</Btn>
       </div>
-      <div class="col no-gutter c4">
-        <input class="muted" type="text" bind:value={detail.tempStage.from} />
-      </div>
-      <div class="col no-gutter c3">
-        <select class="muted" bind:value={detail.tempStage.type}>
-          <option />
-          {#each Object.values(MERGE_TYPES) as mergetype}
-            <option value={mergetype}>{mergetype}</option>
-          {/each}
-        </select>
-      </div>
-      <div class="col no-gutter c1"></div>
     </div>
-    <div class="row mt-2 py-4">
-      <button on:click={saveNewStage} disabled={!addEnabled} class="btn btn-sm success"
-        >ADD STAGE</button
-      >
-      <button on:click={clearNewStage} class="btn btn-sm"
-        >CANCEL</button
-      >
-    </div>
-  {:else}
-  <div class="row mt-4 py-4">
-    <div class="col no-gutter c4">
-    <button class="btn btn-sm primary" on:click={addStage}>ADD STAGE</button>
-    </div>
-  </div>
   {/if}
 {/if}
+
 <script>
+  import Btn from "./Btn.svelte";
+  import Select from "./Select.svelte";
+  import Input from "./Input.svelte";
+  import WithBadge from "./WithBadge.svelte";
   import { derived } from "svelte/store";
   import {
     getActiveRepo,
@@ -115,9 +145,9 @@
     updateActiveRepo,
   } from "./store.js";
 
-  let detail = {}
+  let detail = {};
   let activeRepo = getActiveRepo();
-  
+
   // copy from repos object
   if (activeRepo) {
     detail.repo = activeRepo.repo || "";
@@ -141,47 +171,56 @@
   }
 
   function checkUnsavedChanges() {
-    let r = activeRepo
+    let r = activeRepo;
     if (detail.tempStage !== null) return true;
     if (detail.repo !== r.repo) return true;
     if (detail.isActive !== r.isActive) return true;
     if (detail.name !== r.name) return true;
     // deep-check ~ nested values should be in same order
-    if (JSON.stringify(detail.stages) !== JSON.stringify(r.stages || [])) return true;
-    return false
+    if (JSON.stringify(detail.stages) !== JSON.stringify(r.stages || []))
+      return true;
+    return false;
   }
 
-  function addStage(){
+  function addStage() {
     detail.tempStage = {
-      to:"",
-      from:"",
-      type:"",
-    }
+      to: "",
+      from: "",
+      type: "",
+    };
   }
 
-  function saveNewStage () {
+  function removeStage(index) {
+    detail.stages = detail.stages.filter((stage, i) => i !== index);
+  }
+
+  function saveNewStage() {
     detail.stages = [
       ...detail.stages,
       {
-        ...detail.tempStage
+        ...detail.tempStage,
       },
     ];
     detail.tempStage = null;
-  };
+  }
 
-  function clearNewStage(){
+  function clearNewStage() {
     detail.tempStage = null;
   }
 
-  let unsavedChanges = checkUnsavedChanges()
+  let unsavedChanges = checkUnsavedChanges();
 
   $: {
     // register detail for reactivity and update appStore
     $appState.detail = detail;
     unsavedChanges = checkUnsavedChanges();
-  };
+  }
 
-  $: addEnabled = detail.tempStage && detail.tempStage.to !== "" && detail.tempStage.from !== "" && detail.tempStage.type !== "";
+  $: addEnabled =
+    detail.tempStage &&
+    detail.tempStage.to !== "" &&
+    detail.tempStage.from !== "" &&
+    detail.tempStage.type !== "";
   $: addingStage = !!detail.tempStage;
 
   const save = () => {
@@ -198,64 +237,8 @@
 </script>
 
 <style>
-  input:disabled {
-    user-select: none;
-    pointer-events: none;
-    color: grey;
-  }
-
-
-  button[disabled] {
-    opacity:0.6;
-  }
-
-  input[type="text"],
-  select {
-    width: 100%;
-  }
-
-  .btn-action {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    padding: 0 0 0 0;
-    line-height: 12px;
-    font-weight: 900;
-    color: white;
-    box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.3);
-  }
-  .btn.btn-action[disabled],
-  .btn.btn-action[disabled]:hover {
-    background-color: rgb(167, 167, 167);
-    color: rgb(216, 216, 216);
-    cursor: default;
-  }
-  .btn-action.remove {
-    background-color: var(--col-fail-1);
-    /* background-image: linear-gradient(var(--col-fail-2), var(--col-fail-3)); */
-    color: var(--col-fail-3);
-    border-color: var(--col-fail-2);
-  }
-  .btn-action.remove:hover {
-    background-color: var(--col-fail-2);
-    color: var(--col-fail-3);
-  }
-
-  input,
-  select,
-  option {
-    border: 1px solid black;
-    border-radius: 0px;
-    max-height: 24px;
-    padding-top: 0;
-    vertical-align: top;
-    box-sizing: border-box;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-  }
-  .disabled, .disabled * {
-    opacity: 0.7;
+  .disabled {
+    opacity: 0.45;
     pointer-events: none;
   }
 </style>

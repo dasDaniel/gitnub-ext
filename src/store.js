@@ -23,10 +23,8 @@ getLocalStore().then((data) => {
     let appStateAge = Date.now() - data.appStateTs;
 
     // allow 10 minutes
-    console.log(appStateAge, data.appState);
     if (appStateAge < 10 * 60 * 1000) {
       if (data.version === VERSION && data.appState) {
-        console.log(data.appState);
         if (data.appState.index !== undefined) {
           appState.set(data.appState);
         }
@@ -66,7 +64,6 @@ export const addRepo = (setting) => {
 };
 
 export const selectRepo = (value) => {
-  console.log("selectRepo", value);
   if (value !== null && value >= 0 && value < get(repos).length) {
     appState.set({ index: value });
   } else {

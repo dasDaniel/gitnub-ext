@@ -1,49 +1,46 @@
+<div class="flow-root">
+  <h2 class="text-md font-normal leading-normal text-center mt-4 mb-2">
+    Repos
+  </h2>
 
-<div class="repos mt-4">
-  {#each $repos as { name, isActive }, i}
-    <div class="center row {isActive ? 'active' : 'inactive'}">
-      <div class="col c8 pt-2 text-left">
-      {name}
-      </div>
-      <div class="col c4 pr-4 text-right">
-        <button
-        class="btn btn-sm primary"
-        on:click={() => selectRepo(i)}>EDIT</button
-      >
-      </div>
-    </div>
-  {/each}
-</div>
-
-<div class="center mt-4">
-  <button class="btn btn-sm primary" on:click={createRepo}>CREATE RULE</button>
+  <ul
+    role="list"
+    class=" mt-2 pt-2 border-t border-gray-300 -my-5 divide-y divide-gray-200"
+  >
+    {#each $repos as { name, repo, isActive }, i}
+      <li class="py-4">
+        <div class="flex items-center space-x-4">
+          <div class="flex-1 min-w-0">
+            <p
+              class="text-sm font-medium text-gray-900 truncate"
+              class:text-gray-300={!isActive}
+            >
+              {name}
+            </p>
+            <p
+              class="text-sm text-gray-500 truncate"
+              class:text-gray-200={!isActive}
+            >
+              {repo}
+            </p>
+          </div>
+          <div>
+            <Btn on:click={() => selectRepo(i)}>Edit</Btn>
+          </div>
+        </div>
+      </li>
+    {/each}
+    <li class="py-4 center mt-4 flex justify-center items-center">
+      <Btn on:click={createRepo}>CREATE RULE</Btn>
+    </li>
+  </ul>
 </div>
 
 <script>
-  import "./style.css";
   import { addRepo, repos, selectRepo } from "./store.js";
+  import Btn from "./Btn.svelte";
 
-  function createRepo (){
-    selectRepo(addRepo())
+  function createRepo() {
+    selectRepo(addRepo());
   }
 </script>
-
-<style>
-  .inactive {
-    color: var(--col-default-2);
-    border-left: 5px solid var(--col-default-1);
-  }
-  .active {
-    color: var(--col-primary-3);
-    border-left: 5px solid var(--col-success-2);
-  }
-  .row{
-    margin:0;
-    border-top:1px solid var(--col-default-2);
-    border-right:1px solid var(--col-default-2);
-    padding: 5px 0;
-  }
-  .row:last-child{
-    border-bottom:1px solid var(--col-default-2);
-  }
-</style>

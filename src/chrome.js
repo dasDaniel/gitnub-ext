@@ -1,11 +1,9 @@
 const storeKey = "gitnub1";
 
 export const getLocalStore = async () => {
-  console.log(" GET 🤷‍♂️ ");
   return new Promise((resolve, reject) => {
     try {
       chrome.storage.local.get(storeKey, (storage) => {
-        console.log("🤷‍♂️ GET [chrome]", JSON.stringify(storage));
         if (storeKey in storage) {
           resolve(storage[storeKey]);
         }
@@ -23,7 +21,6 @@ export const getLocalStore = async () => {
 };
 
 export const setLocalStore = (data) => {
-  console.log("write ", JSON.stringify(data));
   try {
     chrome.storage.local.get(storeKey, (storage) => {
       if (storeKey in storage === false) {
