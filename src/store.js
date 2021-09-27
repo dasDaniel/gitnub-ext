@@ -33,18 +33,19 @@ getLocalStore().then((data) => {
   } else {
     // new
     repos.set([
-      {
-        name: "DEFAULT",
-        isActive: true,
-        repo: ".*",
-        stages: [
-          {
-            from: "$develop",
-            to: "$main",
-            type: MERGE_TYPES.MERGE,
-          },
-        ],
-      },
+      // NO DEFAULT ~ just causes issues with content script
+      // {
+      // name: "DEFAULT",
+      // isActive: true,
+      // repo: ".*",
+      // stages: [
+      //   {
+      //     from: "^develop",
+      //     to: "^main|master",
+      //     type: MERGE_TYPES.MERGE,
+      //   },
+      // ],
+      // },
     ]);
   }
 

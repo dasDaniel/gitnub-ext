@@ -1,4 +1,4 @@
-const storeKey = "gitnub1";
+const storeKey = "gitnub";
 
 export const getLocalStore = async () => {
   return new Promise((resolve, reject) => {
