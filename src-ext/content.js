@@ -25,7 +25,9 @@ let activeRepos = [];
 chrome.storage.local.get(storeKey, (storage) => {
   if (storeKey in storage) {
     store = storage[storeKey];
-    handler();
+    if (store) {
+      handler();
+    }
   }
 });
 
@@ -81,6 +83,8 @@ function handlePrPage() {
   if (!isPRUrl()) return;
   const elToBranch = document.querySelector(SELECTOR.BRANCH_TO);
   const elFromBranch = document.querySelector(SELECTOR.BRANCH_FROM);
+  if (!elFromBranch) return;
+  if (!elToBranch) return;
   state.from = elFromBranch.textContent;
   state.to = elToBranch.textContent;
   initPage();
@@ -88,6 +92,7 @@ function handlePrPage() {
 
 function handler() {
   if (activeChange) return;
+  if (!Array.isArray(store.repos)) return;
   activeChange = true;
 
   /** @type {Repo[]} */
